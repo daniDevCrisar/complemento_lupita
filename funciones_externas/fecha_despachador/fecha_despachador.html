@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>generar Fechas</title>
+</head>
+<body>
+
+    <textarea id="ref_padres"></textarea>
+    <button id="btn_obtener"  >Obtener</button>
+
+
+<div id="resultado"></div>
+
+
+</body>
+
+
+
+<script>
+function buscar_fecha_despachador() {
+    console.log("Boton presionado");
+
+    const textarea = document.getElementById('ref_padres');
+    const resultadoDiv = document.getElementById('resultado');
+
+    // Separar cada línea, eliminar líneas vacías
+    const lineas = textarea.value
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l !== '');
+
+    // Generar código por línea
+    const resultados = lineas.map(item => {
+        //------buscar 1 x1 --------------------------
+        console.log(item)
+        fetch('https://efletexia.com/opl/confirmacion-ingreso-carga/create?shippingRequestId=' + item)
+        .then(r => r.text())
+        .then(html => {
+            //--------buscar la fecha prometida por el despachador
+            const response_text= html
+            var pos = response_text.indexOf("Compromiso Carga Coordinador", 1);
+            pos= response_text.indexOf(">", pos+1);
+            pos= response_text.indexOf(">", pos+1);
+            var pos_2=response_text.indexOf("<", pos+1);
+            const fecha_despachador=response_text.slice(pos+1,pos_2);
+            console.log (fecha_despachador)
+
+            //--------------------------------
+        });
+        //---------
+
+        return `<tr><td>${item}</td> <td><strong>${fecha_despachador}</strong></td></tr>`;
+    });
+
+    // Mostrar resultados en el div
+    resultadoDiv.innerHTML = '<table>' + resultados.join('') + '</table>';
+
+}
+document.getElementById('btn_obtener').addEventListener('click', buscar_fecha_despachador);
+
+
+</script>
+
+
+</html>

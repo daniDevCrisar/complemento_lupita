@@ -1,0 +1,110 @@
+.check_pedro {
+    width: 15px !important;
+    height: 15px !important;
+    transform: scale(1.5);
+    margin-right: 10px !important;
+}
+
+.content-container {
+    min-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0px;
+    background-color: #444 ;
+    color: white !important;
+    
+}
+
+.content {
+    min-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0px;
+    background-color: #1c1c1c !important;
+    height: 300px;
+}
+
+.container {
+    min-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0px;
+    background-color: #1c1c1c ;
+}
+
+body {
+    background-color:transparent !important;
+}
+
+.navbar .navbar-collapse {
+    background: #121212 !important;
+}
+
+label {
+    color: white !important;
+}
+
+ .navbar-nav>li>a {
+border-color: white !important;
+}
+.mainbar {
+    background-color: #121212  !important;
+}
+
+
+.content-header-title {
+    margin-top: 0;
+    color: #f1948a !important;
+    font-size: 24px;
+}
+
+footer {
+    background-color: #121212  !important;
+}
+
+.form-control{
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    font-weight: bold !important;
+}
+select{
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    font-weight: bold !important;
+}
+
+.modal-content{
+    background-color: #1c1c1c !important;
+    color: white !important;
+}
+
+.modal-header{
+    background-color: #121212 !important;
+    padding-top: 30px !important;
+}
+
+.close{
+    font-size: 28px !important;
+    font-weight: bold !important;
+    color: rgb(249, 61, 61) !important;
+    opacity: 1 !important;
+}
+
+.table-striped>tbody>tr:nth-child(odd)>td,.table-striped>tbody>tr:nth-child(odd)>th {
+    background-color: #1c1c1c !important;
+}
+
+/* --------------------------------------------
+   hover de tabla
+   -------------------------------------------- */
+.table-hover>tbody>tr:hover>td,.table-hover>tbody>tr:hover>th {
+    background-color: black !important;
+}
+
+.table-striped>tbody>tr:hover:nth-child(odd)>td,.table-striped>tbody>tr:nth-child(odd)>th {
+    background-color: black !important;
+}
+/* --------------------------------------------
+   -------------------------------------------- */

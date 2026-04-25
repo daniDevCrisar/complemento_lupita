@@ -1,0 +1,35 @@
+Sub ModificarPrimeraColumnaConFor()
+    Dim rngSeleccion As Range
+    Dim rngPrimeraCol As Range
+    Dim i As Long ' Contador para recorrer filas
+    
+    ' 1. Verifica que haya una selección válida
+    If TypeName(Selection) <> "Range" Then
+        MsgBox "Por favor, selecciona un rango de celdas primero.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' 2. Define la PRIMERA COLUMNA de la selección
+    Set rngSeleccion = Selection
+    Set rngPrimeraCol = rngSeleccion.Columns(1)
+    
+    ' 3. Desactiva actualizaciones para mayor velocidad (opcional)
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    
+    ' 4. Recorre CADA FILA de la primera columna seleccionada
+    For i = 1 To rngPrimeraCol.Rows.Count
+        ' Verifica si la celda en la fila 'i' tiene fórmula
+        If rngPrimeraCol.Cells(i, 1).HasFormula Then
+            ' Convierte la fórmula en su valor estático
+            rngPrimeraCol.Cells(i, 1).Value = rngPrimeraCol.Cells(i, 1).Value
+        End If
+    Next i
+    
+    ' 5. Reactiva actualizaciones
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+    
+    ' 6. Mensaje de confirmación
+    MsgBox "Conversión completada en " & rngPrimeraCol.Rows.Count & " filas de la primera columna.", vbInformation
+End Sub
