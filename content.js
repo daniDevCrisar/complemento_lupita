@@ -1,5 +1,51 @@
-
+//link de llamadas IA 
+// https://efletexia.com/newmonit/llamadaia/send?shippingrequestid=1008387
 console.log("LUPITA - Obtener referencias");
+
+
+//-----------INYECTAR CUADRO DE CARGA----------------
+const div_carga_html = `<div id="overlayGuardando" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+     style="background: rgba(0,0,0,0.5); z-index:9999;
+       position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+     ">
+     
+    <div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+        <div style="text-align: center; min-width: 300px;">
+            
+            <!-- Barra de carga -->
+            <div style="width: 100%; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-bottom: 20px; height: 8px;">
+                <div id='div_barra' style="width: 0%; height: 100%; background: linear-gradient(90deg, #4ecdc4, #45b7d1); border-radius: 10px;"></div>
+            </div>
+            
+            <!-- Texto -->
+            <div style="color: white; font-size: 1.2rem; font-weight: 500; letter-spacing: 1px; margin-bottom: 15px;">
+            <img src="https://i.ibb.co/x8CKttw7/icon.png" alt="icon" border="0" width='256 px'> <br>
+                <h1>Obteniendo datos para lupita</h1>
+                <div id='carga_texto'>cargando llamadas q tienen referencias del LOTE</div>
+            </div>
+            
+            
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes cargar {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+</style>`;
+document.body.insertAdjacentHTML('beforeend', div_carga_html);
+const div_carga = document.getElementById('overlayGuardando');
+const div_carga_texto = document.getElementById('carga_texto');
+const div_carga_barra = document.getElementById('div_barra');
+//-----------------------------------------------------
 
 
 //-----------OBTENER GET Y DETECTAR CUANDO SE TIENEN Q ENVIAR-------------
@@ -14,8 +60,13 @@ console.log('Lote: '+id);
 //--------------OBTENER DATOS CUANDO SE TERMINA DE CARGAR LA PAGINA----------------
 let lote_refs = null, fechas_conf = null,refs_conf={}; // Variable para almacenar los datos del lote
 window.addEventListener('load', function() {
+  //llamar_ia();
   //-------------OBTENER REFERENCIAS DEL LOTE----------------
-  fetch(`https://lupita-laravel.test/api/lote/${id}/detalle`, {
+
+  if(id){
+    div_carga.classList.remove('d-none');
+    div_carga.style.display = 'block';
+      fetch(`https://lupita-laravel.test/api/lote/${id}/detalle`, {
       method: 'GET'
   })
   .then(response => response.json())
@@ -27,9 +78,44 @@ window.addEventListener('load', function() {
     console.log(fechas_conf);
     obtener_ref_conf();
   });
+  }
+
 //--------------------------------------------------------------
 
 });
+
+async function llamar_ia() {
+      //probar llamadas ia************************************
+    const arrayNumeros = [
+        1005046, 1005045, 1007956, 1007958, 1007959, 1007962, 1007989, 1007968, 1007002,
+        1008203, 1008461, 1008605, 1008481, 1008211, 1008482, 1008456, 1008237, 1008385,
+        1008595, 1008390, 1008260, 1008430, 1008251, 1008594, 1008112, 1008115, 1008418,
+        1008454, 1008394, 1008460, 1008240, 1008416, 1008602, 1008262, 1008274, 1008591,
+        1008301, 1008252, 1008238, 1008292, 1008322, 1008265, 1008280, 1008432, 1008425,
+        1008209, 1007944, 1008239, 1008278, 1008606, 1008297, 1008601, 1008462, 1008250,
+        1008463, 1008457, 1008254, 1007130, 1008315, 1008319, 1008593, 1008396, 1008361,
+        1008236, 1008607, 1008613, 1008281, 1008284, 1008291, 1008320, 1008417, 1008427,
+        1008234, 1008233, 1008424, 1008610, 1008294, 1008334, 1008429, 1008340, 1008483,
+        1008449, 1008121, 1008592, 1008261, 1008253, 1008389, 1008392, 1008345, 1007915,
+        1003557, 1004392, 1005667, 1005670, 1006738, 1006741, 1004455, 1006754, 1006742,
+        1006739, 1007633, 1007632, 1007679, 1007636, 1006783, 1007631, 1007635, 1007599,
+        1006567, 1007588, 1007645, 1007644, 1006728, 1008697, 1007648, 1008655, 1008657,
+        1003436, 1007648, 1008653, 1008645, 1008669, 1008675
+    ];
+
+    console.log(arrayNumeros);
+    console.log('Total:', arrayNumeros.length);
+    const url_ia='https://efletexia.com/newmonit/llamadaia/send?shippingrequestid='
+
+    //let fecha_despachador='';
+    for (const item of arrayNumeros) {
+
+        const response = await fetch(url_ia + item);
+        const html = await response.text();
+        console.log(html)
+    }
+    //*************************** */
+}
 
 
 async function obtener_ref_conf_original() {
@@ -99,6 +185,9 @@ async function obtener_ref_conf_original() {
 
 async function obtener_ref_conf() {
     //-----OBTENER REFERENCIAS DE LLAMADAS IA HECHAS POR USUARIO---------------
+    div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Obteniendo referencias de confirmación del historial de llamadas IA...";
+
+
     let token = document.querySelector('[name="_token"]').value;
     console.log('Token para obtener referencias de confirmación: ', token);
 
@@ -166,6 +255,8 @@ async function obtener_ref_conf() {
 
 
 async function buscar_fecha_despachador() {
+    div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Buscando datos de las referencias en efletexia...";
+
     let data_refs_devueltas = {};
     tabla = '';
         // Separar cada línea, eliminar líneas vacías
@@ -237,6 +328,9 @@ async function buscar_fecha_despachador() {
 
         contador+=1;
         progreso=((contador/total_lineas)*100).toFixed(2);
+
+        div_carga_barra.style.width= `${progreso}%`;
+
         console.log('FECHA DESPACHADOR',hora_actual(),item,`Progreso: ${progreso}%` );
 
         //--------------BUSCAR EN EL HISTORIAL IA LAS REFERENCIAS DE CONFIRMACION------------------
@@ -261,6 +355,7 @@ async function buscar_fecha_despachador() {
     }   
 
     //-----------ENVIAR DATOS A LUPITA----------------
+    div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Enviando datos a Lupita...";
     console.log('Datos a enviar a Lupita: ', data_refs_devueltas);
     fetch(`https://lupita-laravel.test/api/lote/${id}/detalle/actualizar`, {
     method: 'POST',
@@ -271,7 +366,12 @@ async function buscar_fecha_despachador() {
     body: JSON.stringify( data_refs_devueltas )
     })
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => {
+        console.log(data)
+        div_carga.classList.add('d-none');
+        div_carga.style.display = 'none';
+    });
+
     //-------------------------------------------------------
 }
 
