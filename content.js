@@ -84,40 +84,6 @@ window.addEventListener('load', function() {
 
 });
 
-async function llamar_ia() {
-      //probar llamadas ia************************************
-    const arrayNumeros = [
-        1005046, 1005045, 1007956, 1007958, 1007959, 1007962, 1007989, 1007968, 1007002,
-        1008203, 1008461, 1008605, 1008481, 1008211, 1008482, 1008456, 1008237, 1008385,
-        1008595, 1008390, 1008260, 1008430, 1008251, 1008594, 1008112, 1008115, 1008418,
-        1008454, 1008394, 1008460, 1008240, 1008416, 1008602, 1008262, 1008274, 1008591,
-        1008301, 1008252, 1008238, 1008292, 1008322, 1008265, 1008280, 1008432, 1008425,
-        1008209, 1007944, 1008239, 1008278, 1008606, 1008297, 1008601, 1008462, 1008250,
-        1008463, 1008457, 1008254, 1007130, 1008315, 1008319, 1008593, 1008396, 1008361,
-        1008236, 1008607, 1008613, 1008281, 1008284, 1008291, 1008320, 1008417, 1008427,
-        1008234, 1008233, 1008424, 1008610, 1008294, 1008334, 1008429, 1008340, 1008483,
-        1008449, 1008121, 1008592, 1008261, 1008253, 1008389, 1008392, 1008345, 1007915,
-        1003557, 1004392, 1005667, 1005670, 1006738, 1006741, 1004455, 1006754, 1006742,
-        1006739, 1007633, 1007632, 1007679, 1007636, 1006783, 1007631, 1007635, 1007599,
-        1006567, 1007588, 1007645, 1007644, 1006728, 1008697, 1007648, 1008655, 1008657,
-        1003436, 1007648, 1008653, 1008645, 1008669, 1008675
-    ];
-
-    console.log(arrayNumeros);
-    console.log('Total:', arrayNumeros.length);
-    const url_ia='https://efletexia.com/newmonit/llamadaia/send?shippingrequestid='
-
-    //let fecha_despachador='';
-    for (const item of arrayNumeros) {
-
-        const response = await fetch(url_ia + item);
-        const html = await response.text();
-        console.log(html)
-    }
-    //*************************** */
-}
-
-
 async function obtener_ref_conf_original() {
   //-----OBTENER REFERENCIAS DE LLAMADAS IA HECHAS POR USUARIO---------------
   let token=document.querySelector('[name="_token"]').value;
@@ -253,11 +219,10 @@ async function obtener_ref_conf() {
     //------------------------------------------------------------
 }
 
-
+let data_refs_devueltas = {};
 async function buscar_fecha_despachador() {
     div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Buscando datos de las referencias en efletexia...";
 
-    let data_refs_devueltas = {};
     tabla = '';
         // Separar cada línea, eliminar líneas vacías
     //const lineas= eliminar_lineas_vacias(textarea.value);
@@ -266,7 +231,6 @@ async function buscar_fecha_despachador() {
     const url_fecha_des='https://efletexia.com/opl/confirmacion-ingreso-carga/create?shippingRequestId='
     //let fecha_despachador='';
     for (const item of lote_refs) {
-
         const response = await fetch(url_fecha_des + item);
         const html = await response.text();
         let pos,pos_2, gps_datos, link_gps,transportista,tlf_chofer,fecha_despachador;
@@ -319,6 +283,7 @@ async function buscar_fecha_despachador() {
         pos= response_text.indexOf(">", pos+1);
         pos_2=response_text.indexOf("<", pos+1);
         fecha_despachador=response_text.slice(pos+1,pos_2);
+        //--------
         tabla+=`<tr>
         <td> ${item}   </td>
         <td><b> ${transportista}  </b> </td>
@@ -327,7 +292,7 @@ async function buscar_fecha_despachador() {
         </tr>`;
 
         contador+=1;
-        progreso=((contador/total_lineas)*100).toFixed(2);
+        progreso=(  (contador/ (total_lineas*2) )*100  ).toFixed(2);
 
         div_carga_barra.style.width= `${progreso}%`;
 
@@ -348,12 +313,22 @@ async function buscar_fecha_despachador() {
             titulo_viaje: titulo_viaje,
             transportista: transportista,
             tlf_chofer: tlf_chofer,
-            fecha_despachador: fecha_despachador,
+            fecha_despachador: transformarFecha_2(fecha_despachador),
             confirmacion:confirmacion,
-            fecha_llamada: fecha_llamada
+            fecha_llamada: fecha_llamada,
+            fecha_conpromiso :'',
+            fecha_presente_carga: '',
+            fecha_inicio_carga: '',
+            fecha_fin_carga: '',
+            fecha_inicio_ruta: '',
+            fecha_qr_descarga: '',
+            fecha_inicio_descarga: '',
+            fecha_fin_descarga: '',
         };
-    }   
+    }
 
+    div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Obteniendo datos de los viajes...";
+    await buscar_historial_viaje()
     //-----------ENVIAR DATOS A LUPITA----------------
     div_carga_texto.innerHTML =  div_carga_texto.innerHTML + "<br>Enviando datos a Lupita...";
     console.log('Datos a enviar a Lupita: ', data_refs_devueltas);
@@ -374,4 +349,155 @@ async function buscar_fecha_despachador() {
 
     //-------------------------------------------------------
 }
+
+
+async function buscar_historial_viaje() {
+
+    // Separar cada línea, eliminar líneas vacías
+    const url_historial = 'https://efletexia.com/newmonit/viaje/card/'
+
+
+
+    let contador = 0;
+    let total_lineas = lote_refs.length;
+
+    //CARGAR EL HISTORIAL DE VIAJE MEDIANTE LINK
+    let pos, pos_2, llegada_origen, llegada_destino, inicio_descargue, fin_descargue, qr_descarga, presente_carga,
+        fin_carga, inicio_carga,inicio_ruta;
+
+
+
+    for (const item of lote_refs) {
+        const response = await fetch(url_historial + item);
+        const response_text = await response.text();
+
+        //--------------------------confirmado
+        let ultimo_confirmado, lista = [];
+        //------------COMPROMISO--------------
+        pos = response_text.indexOf("Confirmado", 1);
+        do {
+            if (pos !== -1) {
+                let pos_a = response_text.indexOf("<strong>", pos + 1);
+                let pos_b = response_text.indexOf("</strong>", pos + 8);
+                let etiq = response_text.slice(pos_a + 8, pos_b);
+                console.log(pos, etiq);
+                lista.push(etiq)
+                pos = response_text.indexOf("Confirmado", pos + 1);
+            }
+        } while (pos !== -1)
+
+        ultimo_confirmado = lista[lista.length - 1] ?? '';
+
+        //-------------LLEGADA ORIGEN--------------
+        pos = response_text.indexOf("Llegada a Origen", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            llegada_origen = response_text.slice(pos + 8, pos_2);
+        } else llegada_origen = '';
+
+        //-------------LLEGADA DESTINO--------------
+        pos = response_text.indexOf("Llegada a Destino", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            llegada_destino = response_text.slice(pos + 8, pos_2);
+        } else llegada_destino = '';
+
+        //-------------INICIO DESCARGUE--------------
+        pos = response_text.indexOf("Inicio Descargue", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            inicio_descargue = response_text.slice(pos + 8, pos_2);
+        } else inicio_descargue = '';
+
+        //-------------FIN DESCARGUE--------------
+        pos = response_text.indexOf("Fin Descargue", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            fin_descargue = response_text.slice(pos + 8, pos_2);
+        } else fin_descargue = '';
+
+        //-------------QR DESCARGA--------------
+
+        pos = response_text.indexOf("QR Monitoreo Maxo", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            qr_descarga = response_text.slice(pos + 8, pos_2);
+        } else qr_descarga = '';
+
+        //-------------PRESENTE DE CARGA--------------
+        pos = response_text.indexOf("Presenta para Carga", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            presente_carga = response_text.slice(pos + 8, pos_2);
+        } else presente_carga = '';
+
+        //-------------NOTIFICACION DE LLEGADA--------------notificaci&oacute;n de llegada
+        if (presente_carga == '') {
+            texto_normalizado = normalizar(response_text)
+            pos = texto_normalizado.indexOf("notificaci&oacute;n de llegada", 1);
+            if (pos !== -1) { // si se encuentra obtenerlo
+                //<strong>13:00 | 03/01/2026</strong>
+                pos = response_text.indexOf("<strong>", pos + 1);
+                pos_2 = response_text.indexOf("</strong>", pos + 8);
+                presente_carga = response_text.slice(pos + 8, pos_2);
+            } else presente_carga = '';
+        }
+
+        //-------------INICIO DE CARGA--------------
+        pos = response_text.indexOf("Inicio de Carga", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            inicio_carga = response_text.slice(pos + 8, pos_2);
+        } else inicio_carga = '';
+
+        //-------------FIN DE CARGA--------------
+        pos = response_text.indexOf("Fin de carga", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            fin_carga = response_text.slice(pos + 8, pos_2);
+        } else fin_carga = '';
+        //-------------Inicio Ruta-------------
+        pos = response_text.indexOf("Inicio Ruta", 1);
+        if (pos !== -1) { // si se encuentra obtenerlo
+            //<strong>13:00 | 03/01/2026</strong>
+            pos = response_text.indexOf("<strong>", pos + 1);
+            pos_2 = response_text.indexOf("</strong>", pos + 8);
+            inicio_ruta = response_text.slice(pos + 8, pos_2);
+        } else inicio_ruta = '';
+
+        data_refs_devueltas[item].fecha_conpromiso= transformarFecha(ultimo_confirmado);
+        data_refs_devueltas[item].fecha_presente_carga = transformarFecha(presente_carga);
+        data_refs_devueltas[item].fecha_inicio_carga = transformarFecha(inicio_carga);
+        data_refs_devueltas[item].fecha_fin_carga = transformarFecha(fin_carga);
+        data_refs_devueltas[item].fecha_inicio_ruta = transformarFecha(inicio_ruta);
+
+        data_refs_devueltas[item].fecha_qr_descarga = transformarFecha(qr_descarga);
+        data_refs_devueltas[item].fecha_inicio_descarga = transformarFecha(inicio_descargue);
+        data_refs_devueltas[item].fecha_fin_descarga = transformarFecha(fin_descargue);
+
+        contador += 1;
+        progreso=(  ( ( total_lineas + contador)/ (total_lineas*2) )*100 ).toFixed(2);
+        div_carga_barra.style.width= `${progreso}%`;
+        console.log('HISTORIAL DE VIAJE', hora_actual(), item, `Progreso: ${progreso}%`);
+
+    }
+
+}
+
 

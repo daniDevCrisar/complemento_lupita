@@ -47,6 +47,7 @@ function eliminar_lineas_vacias(texto) {
 //cambiar el formato de fecha para excel
 function transformarFecha(fechaOriginal) {
   if (fechaOriginal === '') return '';
+    // console.log(fechaOriginal);
   // Separar hora y fecha
   let [hora, fecha] = fechaOriginal.split(" | ");
 
@@ -56,6 +57,14 @@ function transformarFecha(fechaOriginal) {
 
   // Construir el nuevo formato
   return `${dia}/${mes}/${anio} ${hora}`;
+}
+
+function transformarFecha_2(fechaStr) {
+    //hh:mm:ss dd-mm-aaaa
+    const [hora, fecha] = fechaStr.split(' ');
+    const [horas, minutos] = hora.split(':');
+    const [dia, mes, anio] = fecha.split('-');
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
 }
 
 //barra de lejania de hora
