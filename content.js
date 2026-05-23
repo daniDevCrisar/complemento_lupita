@@ -284,12 +284,6 @@ async function buscar_fecha_despachador() {
         pos_2=response_text.indexOf("<", pos+1);
         fecha_despachador=response_text.slice(pos+1,pos_2);
         //--------
-        tabla+=`<tr>
-        <td> ${item}   </td>
-        <td><b> ${transportista}  </b> </td>
-        <td> 51${tlf_chofer}   </td>
-        <td><strong><h1> ${fecha_despachador} </h1></strong></td>
-        </tr>`;
 
         contador+=1;
         progreso=(  (contador/ (total_lineas*2) )*100  ).toFixed(2);
@@ -480,6 +474,8 @@ async function buscar_historial_viaje() {
             pos_2 = response_text.indexOf("</strong>", pos + 8);
             inicio_ruta = response_text.slice(pos + 8, pos_2);
         } else inicio_ruta = '';
+
+        if (!qr_descarga) qr_descarga = llegada_destino;
 
         data_refs_devueltas[item].fecha_conpromiso= transformarFecha(ultimo_confirmado);
         data_refs_devueltas[item].fecha_presente_carga = transformarFecha(presente_carga);
