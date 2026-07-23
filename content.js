@@ -41,20 +41,24 @@ const div_carga_html = `<div id="overlayGuardando" class="position-fixed top-0 s
     100% { width: 100%; }
 }
 </style>`;
-document.body.insertAdjacentHTML('beforeend', div_carga_html);
+//-----------OBTENER GET Y DETECTAR CUANDO SE TIENEN Q ENVIAR-------------
+const urlParams = new URLSearchParams(window.location.search);
+const id = urlParams.get('vapi_lote');
+if (id) {
+    document.body.insertAdjacentHTML('beforeend', div_carga_html);
+
+}
+//-----------------------------------------------------
 const div_carga = document.getElementById('overlayGuardando');
 const div_carga_texto = document.getElementById('carga_texto');
 const div_carga_barra = document.getElementById('div_barra');
-//-----------------------------------------------------
 
 
-//-----------OBTENER GET Y DETECTAR CUANDO SE TIENEN Q ENVIAR-------------
-const urlParams = new URLSearchParams(window.location.search);
 let tabla='',lista_placas={};
 
 
 // Leer un parámetro específico
-const id = urlParams.get('vapi_lote');
+
 console.log('Lote: '+id);
 
 //--------------OBTENER DATOS CUANDO SE TERMINA DE CARGAR LA PAGINA----------------
